@@ -1,0 +1,169 @@
+<!-- Class: DAAA/FT/1B/01
+Admission Number: p2214449
+Name: Tan Wen Tao Bryan -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+    <title>Add A New Customer</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZG"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+</head>
+
+<script>
+    $(document).ready(function () {
+        //Fetch jwt token
+        let jwt = localStorage.getItem("JWT");
+        //Redirects user to login page if jwt token is not found
+        if (jwt == null) {
+            window.location.href = "/login.html";
+        }
+        $("#logout").click(function () {
+            //clears local storage after being clicked
+            localStorage.clear();
+            window.location.assign("./login.html");
+
+            return false;
+        });//end of logout click
+
+        //shows all options in Stores Address
+        $.ajax({
+            url: "http://localhost:8081/add_customers/address",
+            method: "GET",
+            contentType: "application/json",
+            dataType: "json",
+            success: function (result, status, xhr) {
+                var storeSelect = $("#storeSelect");
+                storeSelect.html("")
+                storeSelect.append(`<option value="" disabled selected hidden>Choose current store address</option>`)
+                for (var i = 0; i < result.length; i++) {
+                    var storeSelectData = result[i];
+                    var store_address = storeSelectData.address;
+                    var storeData = `
+                    <option value="${storeSelectData.store_id}">${store_address}</option>
+                    `;
+                    storeSelect.append(storeData);
+                }
+            }
+        });
+
+        $("#add").click(function () {
+            let firstname = $("#first_name").val();
+            let lastname = $("#last_name").val();
+            let email = $("#email").val();
+            let address = $("#address").val();
+            let postalcode = $("#postal_code").val();
+            let district = $("#district").val();
+            let city_id = $("#city_id").val();
+            let phone = $("#phone").val();
+            let store_id = $("#storeSelect").val();
+            let jwt = localStorage.getItem("JWT");
+            let data = `{"first_name":"${firstname}","last_name":"${lastname}","email":"${email}","address":"${address}","postal_code":"${postalcode}","district":"${district}","city_id":"${city_id}","phone":"${phone}","store_id":"${store_id}"}`;
+            $.ajax({
+                headers: { "authorization": `Bearer ${jwt}` },
+                url: "http://localhost:8081/add_customers",
+                method: "POST",
+                data: data,
+                contentType: "application/json",
+                dataType: "json",
+                success: function (result, status, xhr) {
+                    if (result && result.success) {
+                        alert("Successfully added a customer!")
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("Please try again! Error is " + xhr.responseText + " (" + xhr.status + ")")
+                }
+            })
+            return false;
+        })
+    })
+</script>
+
+<body>
+    <!--Navigation System Style-->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">DVD Rental Store</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="./dvd.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./ratings.html">Ratings</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./newactor.html">Add New Actor</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page">Add New Customer</a>
+                </li>
+            </ul>
+            <a type="button" class="btn btn-outline-dark ml-auto nav-link" id="logout" href="./login.html">Log Out</a>
+        </div>
+    </nav>
+    <div class="container login-form bg-light p-4 mt-4 rounded ms-auto w-50">
+        <!--<form action="http://localhost:3001/profile.html"> -->
+        <h1 class="text-center">Add A New Customer</h1>
+        <form action="">
+            <div class="form-group">
+                <label for="first_name">First Name</label>
+                <input type="text" class="form-control" id="first_name" placeholder="First Name" required />
+            </div>
+            <div class="form-group">
+                <label for="last_name">Last Name</label>
+                <input type="text" class="form-control" id="last_name" placeholder="Last Name" required />
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" placeholder="Email" required />
+            </div>
+            <div class="form-group">
+                <label for="Address">Address</label>
+                <input type="text" class="form-control" id="address" placeholder="Address" required />
+            </div>
+            <div class="form-group">
+                <label for="postal_code">Postal Code</label>
+                <input type="text" class="form-control" id="postal_code" placeholder="Postal Code" required />
+            </div>
+            <div class="form-group">
+                <label for="district">District</label>
+                <input type="text" class="form-control" id="district" placeholder="District" required />
+            </div>
+            <div class="form-group">
+                <label for="city_id">City ID</label>
+                <input type="text" class="form-control" id="city_id" placeholder="City ID" required />
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="text" class="form-control" id="phone" placeholder="Phone" required />
+            </div>
+            <div class="form-group">
+                <label for="categorySelect">Select Store</label>
+                <select class="form-control" id="storeSelect">
+                    <option>All</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-outline-primary" id="add">Add</button>
+        </form>
+    </div>
+</body>
+
+</html>

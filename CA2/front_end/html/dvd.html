@@ -1,0 +1,204 @@
+<!-- Class: DAAA/FT/1B/01
+Admission Number: p2214449
+Name: Tan Wen Tao Bryan -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+    <title>DVD Rental Store</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<script>
+    $(document).ready(function () {
+
+        //select "All" for Category (default results shown)
+        $.ajax({
+            //headers:{"authorization":`Bearer ${jwt}`},
+            url: "http://localhost:8081/films",
+            method: "GET",
+            contentType: "application/json",
+            dataType: "json",
+            success: function (result, status, xhr) {
+                var filmsResultsDiv = $("#results");
+                filmsResultsDiv.html("")
+                for (var i = 0; i < result.length; i++) {
+                    var filmsResultsData = result[i];
+                    var title = filmsResultsData.title;
+                    var rating = filmsResultsData.rating;
+                    var release_year = filmsResultsData.release_year;
+                    var id = filmsResultsData.film_id;
+                    //Reveals film results on the cards
+                    var filmResults = ` 
+            <div class="col mb-4 d-flex flex-fill">
+                <div class="card mb-4 pt-2 pl-2">
+                    <img class="card-img-top" src="" alt="DVD 1">
+                    <div class="card-body">
+                        <h6 class="card-title">${title}</h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="card-text list-group-item">${rating}</li>
+                            <li class="card-text list-group-item">Released in: ${release_year}</li>
+                        </ul>
+                        <div class="d-flex">
+                            <a href="#" class="mt-3 btn btn-outline-success">Rent</a>
+                            <a class='ml-2 align-self-center'  href="./details.html?film_id=${id}">For More Info</a>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+                    filmsResultsDiv.append(filmResults);
+                }
+            }
+        });
+
+        //shows all options in Category
+        $.ajax({
+            //headers:{"authorization":`Bearer ${jwt}`},
+            url: "http://localhost:8081/film_categories/category",
+            method: "GET",
+            contentType: "application/json",
+            dataType: "json",
+            success: function (result, status, xhr) {
+                var categorySelect = $("#categorySelect");
+                categorySelect.html("")
+                categorySelect.append(`<option value="">All</option>`)
+                for (var i = 0; i < result.length; i++) {
+                    var categorySelectData = result[i];
+                    var name = categorySelectData.name;
+                    var categoryData = `
+                    <option value="${categorySelectData.category_id}">${name}</option>
+                    `;
+                    categorySelect.append(categoryData);
+                }
+            }
+        });
+
+        //Event that take place after clicking search button
+        $("#search").click(function (event) {
+            //Values chosen in GUI
+            var select = $("#categorySelect").val();
+            var search = $("#titleSearch").val();
+            var maxrentalrate = $("#maxrentalrate").val();
+
+            //Format data in JSON format
+            var data = {
+                "category":select,
+                "title": search,
+                "maxRental":maxrentalrate
+            };
+
+            //search results reveals after user submitted options
+            $.ajax({
+                url: "http://localhost:8081/films/results",
+                method: "GET",
+                contentType: "application/json",
+                dataType: "json",
+                data: data,
+                success: function (result, status, xhr) {
+                    console.log(result.UserData)
+                    var filmsResultsDiv = $("#results");
+                    filmsResultsDiv.html("")
+                    for (var i = 0; i < result.UserData.length; i++) {
+                        var filmsResultsData = result.UserData[i];
+                        var id = filmsResultsData.film_id;
+                        var title = filmsResultsData.title;
+                        var rating = filmsResultsData.rating;
+                        var release_year = filmsResultsData.release_year;
+                        var filmResults = ` 
+                        <div class="col mb-4 d-flex flex-fill">
+                            <div class="card mb-4 pt-2 pl-2">
+                                <img class="card-img-top" src="" alt="DVD 1">
+                                <div class="card-body">
+                                        <h6 class="card-title">${title}</h6>
+                                        <ul class="list-group list-group-flush">
+                                            <li class="card-text list-group-item">${rating}</li>
+                                            <li class="card-text list-group-item">Released in: ${release_year}</li>
+                                         </ul>
+                                        <div class="d-flex">
+                                            <a href="#" class="mt-3 btn btn-outline-success">Rent</a>
+                                            <a class='ml-2 align-self-center' href="./details.html?film_id=${id}">For More Info</a>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>`
+                        filmsResultsDiv.append(filmResults);
+                    }
+                },
+                error:function(xhr, status,error){
+                    alert("No Results Found!");
+                }
+            })
+            return false;
+        })
+    });
+</script>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">DVD Rental Store</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./ratings.html">Ratings</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./login.html">Admin Login</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container login-form bg-light p-4 mt-4 rounded ms-auto w-75 row-cols-md-2">
+        <h1 class="text-center">Welcome to DVD Rental Store</h1>
+        <form>
+            <div class="row">
+                <div class="form-group col">
+                    <label for="titleSearch">Title</label>
+                    <input type="text" class="form-control" id="titleSearch" placeholder="Enter title" />
+                </div>
+                <div class="form-group col">
+                    <label for="categorySelect">Category</label>
+                    <select class="form-control" id="categorySelect">
+                    </select>
+                </div>
+            </div>
+            <div class="col">
+                <label for="maxrentalrate" class="form-label">Price</label>
+                <div class="input-group form-group">
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" id="maxrentalrate" aria-label="Max Price:">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="search">Search</button>
+        </form>
+    </div>
+    <div class="container bg-light pt-4 mt-4 rounded ms-auto w-75">
+        <div class="card-deck row row-cols-8 p-4 d-flex justify-content-between container" id="results">
+            <!--Error message that is displayed if server is not responding-->
+            <p>Server is currently down! Please be patient while we are fixing the issue!</p>
+        </div>
+    </div>
+</body>
+
+</html>

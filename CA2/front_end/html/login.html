@@ -1,0 +1,109 @@
+<!-- Class: DAAA/FT/1B/01
+Admission Number: p2214449
+Name: Tan Wen Tao Bryan -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+    <title>Admin Login</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZG"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+</head>
+
+<script>
+    $(document).ready(function(){
+        $("#login").click(function(){
+
+            //Store responses from GUI in variables
+            var email = $("#email").val();
+            var pwd = $("#pwd").val();
+            //Format email and password as JSON object
+            var data=`{"email":"${email}","password":"${pwd}"}`;
+
+            //Processes form submission with jQuery to handle login
+            $.ajax({
+                url:"http://localhost:8081/login",
+                method:"POST",
+                data:data,
+                contentType:"application/json",
+                dataType:"json",
+                success:function(result,status,xhr){
+                    console.log(result);
+                    if(result && result.success){
+                        var userData=result.UserData;
+                        var token=result.token;
+                        //stores userdata and JWT token in local storage
+                        localStorage.setItem("userData", userData);
+                        localStorage.setItem("JWT", token);
+                        console.log(token)
+
+                        //directs user to new page
+                        window.location.assign("./newactor.html");
+                    }
+                },
+                error:function(xhr, status,error){
+                    console.log(xhr.responseText)
+                    alert("Login Failed! Please try again");
+                }
+            })
+
+            //Prevents reloading of the page
+            return false;
+        });
+    });
+</script>
+
+<body>
+    <!--Navigation System Style-->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">DVD Rental Store</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="./dvd.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./ratings.html">Ratings</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container login-form bg-light p-4 mt-4 rounded ms-auto w-50">
+        <!--<form action="http://localhost:3001/profile.html"> -->
+        <h1 class="text-center">Admin Login</h1>
+        <form action="">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" placeholder="Email" required />
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="pwd" placeholder="Password" required />
+            </div>
+            <div class="clearfix">
+                <label class="pull-left checkbox-inline"><input type="checkbox"> Remember me</label>
+                <a class='ml-2' href="#" class="pull-right" id="ForgotPassword">Forgot Password?</a>
+            </div>
+            <button type="submit" class="btn btn-outline-primary" id="login">Login</button>
+        </form>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,143 @@
+<!-- Class: DAAA/FT/1B/01
+Admission Number: p2214449
+Name: Tan Wen Tao Bryan -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+    <title>DVD Rental Store</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+</head>
+
+<script>
+    $(document).ready(function () {
+        //creates and returns a new params object
+        //parses out parameters from query string 
+        const urlParams = new URLSearchParams(window.location.search);
+        var filmid = "";
+        if (urlParams.has("film_id")) {
+            //returns first value associated with the search parameter
+            filmid = urlParams.get("film_id");
+        }
+        console.log(filmid)
+        $.ajax({
+            //headers:{"authorization":`Bearer ${jwt}`},
+            url: "http://localhost:8081/details/" + filmid,
+            method: "GET",
+            //data:data,
+            contentType: "application/json",
+            dataType: "json",
+            success: function (result, status, xhr) {
+                var filmsDetailsDiv = $("#details");
+                console.log(result)
+                var filmsDetailsData = result.UserData[0];
+                var id = filmsDetailsData.film_id;
+                var title = filmsDetailsData.title;
+                var category = filmsDetailsData.name;
+                var rating = filmsDetailsData.rating;
+                var release_year = filmsDetailsData.release_year;
+                var description = filmsDetailsData.description;
+                var filmsDetails = ` 
+                    <h1 class="text-start"><u>${title}</u></h1>
+                    <img class="img-top" src="" alt="${title}">
+                    <h4 class="text-secondary">Category:</h4>
+                    <h6>${category}</h6>
+                    <h4 class="text-secondary">Release Year:</h4>
+                    <h6>${release_year}</h6>
+                    <h4 class="text-secondary">Description:</h4>
+                    <h6>${description}</h6>
+                    <h4 class="text-secondary">Rating:</h4>
+                    <h6>${rating}</h6>
+                    <h4 class="text-secondary">Actors:</h4>`
+                var string = ``
+                for (var i = 0; i < result.UserData.length; i++) {
+                    var filmsDetailsData = result.UserData[i];
+                    var actor_firstname = filmsDetailsData.first_name;
+                    var actor_lastname = filmsDetailsData.last_name;
+                    string+=`${actor_firstname} ${actor_lastname}`;
+                    if (i < result.UserData.length-1){
+                        string+=`, `
+                    }
+                }
+                filmsDetails+=string
+                filmsDetailsDiv.html(filmsDetails);
+            }
+        })
+
+        $.ajax({
+            url: "http://localhost:8081/details/ratings/" + filmid,
+            method: "GET",
+            contentType: "application/json",
+            dataType: "json",
+            success: function (result, status, xhr) {
+                var ratingsDetailsDiv = $("#showRatings");
+                ratingsDetailsDiv.html("<h4 class=`text-secondary`>Review:</h4>")
+                console.log(result)
+                for (var i = 0; i < result.UserData.length; i++) {
+                    var ratingsDetailsData = result.UserData[i];
+                    var customer_firstname = ratingsDetailsData.first_name;
+                    var customer_lastname = ratingsDetailsData.last_name;
+                    var score = ratingsDetailsData.score;
+                    var comments = ratingsDetailsData.comments;
+                    var last_update=ratingsDetailsData.last_update;
+                    var ratingsDetails = ` 
+                    <p class="mb-0 small">${comments} <mark><b>${score}/5</b></mark></p>
+                    <footer class="blockquote-footer">${customer_firstname} ${customer_lastname} <small>written at: (${last_update})</small></footer>
+                    <p></p>`
+                    ratingsDetailsDiv.append(ratingsDetails);
+                }
+            }
+        })
+        return false;
+    })
+</script>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">DVD Rental Store</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="./dvd.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./ratings.html">Ratings</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./login.html">Admin Login</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container bg-light p-4 mt-4 rounded ms-auto w-75" id="details">
+        <!--Error message that is displayed if server is not responding-->
+        <p>Server is currently down! Please be patient while we are fixing the issue!</p>
+    </div>
+    <div class="container bg-light p-4 mt-4 mb-4 rounded ms-auto w-75">
+        <blockquote class="blockquote" id="showRatings">
+            <!--Error message that is displayed if server is not responding-->
+            <p>Server is currently down! Please be patient while we are fixing the issue!</p>
+        </blockquote>
+    </div>
+</body>
+
+</html>
